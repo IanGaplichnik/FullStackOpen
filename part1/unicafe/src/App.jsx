@@ -19,8 +19,13 @@ const App = () => {
   const GoodStr = "good"
   const NeutralStr = "neutral"
   const BadStr = "bad"
+  const AllStr = "all"
+  const AverageStr = "average"
+  const PositiveStr = "positive"
 
   const setNewStat = (oldValue, setNewFunc) => () => setNewFunc(oldValue + 1)
+
+  const total = good + neutral + bad
 
   return (
     <div>
@@ -32,6 +37,9 @@ const App = () => {
       <Stats name={GoodStr} number={good}></Stats>
       <Stats name={NeutralStr} number={neutral}></Stats>
       <Stats name={BadStr} number={bad}></Stats>
+      <Stats name={AllStr} number={good + bad + neutral}></Stats>
+      <p>{AverageStr} {(good - bad) / total}</p>
+      <p>{PositiveStr} {good / total * 100}%</p>
     </div>
   )
 }
