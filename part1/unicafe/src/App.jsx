@@ -21,20 +21,30 @@ const Statistics = ({ good, neutral, bad }) => {
     return <p>No feedback given</p>
   }
   return (
-    <>
-      <StatisticLine text={GoodStr} value={good}></StatisticLine>
-      <StatisticLine text={NeutralStr} value={neutral}></StatisticLine>
-      <StatisticLine text={BadStr} value={bad}></StatisticLine>
-      <StatisticLine text={AllStr} value={good + bad + neutral}></StatisticLine>
-      <StatisticLine text={AverageStr} value={(good - bad) / total}></StatisticLine>
-      <StatisticLine text={PositiveStr} value={positiveStat}></StatisticLine >
-    </>
+    <table>
+      <tbody>
+        <StatisticLine text={GoodStr} value={good}></StatisticLine>
+        <StatisticLine text={NeutralStr} value={neutral}></StatisticLine>
+        <StatisticLine text={BadStr} value={bad}></StatisticLine>
+        <StatisticLine text={AllStr} value={good + bad + neutral}></StatisticLine>
+        <StatisticLine text={AverageStr} value={(good - bad) / total}></StatisticLine>
+        <StatisticLine text={PositiveStr} value={positiveStat}></StatisticLine >
+      </tbody>
+    </table>
   )
 }
 
 const Header = ({ text }) => <h1>{text}</h1>
 
-const StatisticLine = ({ text, value }) => <p>{text} {value}</p>
+const StatisticLine = ({ text, value }) => {
+  return (
+    <tr>
+      <td>{text}</td>
+      <td>{value}</td>
+    </tr>
+  )
+}
+
 
 const App = () => {
   // save clicks of each button to its own state
