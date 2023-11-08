@@ -5,19 +5,29 @@ const App = () => {
     { name: 'Arto Hellas' }
   ])
   const [newName, setNewName] = useState('Enter new name')
+  const [newPhoneNumber, setNewPhoneNumber] = useState('+358')
 
-  const addNewName = (event) => {
+  const addNewContact = (event) => {
     event.preventDefault()
-    if (persons.every(person => person.name !== newName)) {
-      setPersons(persons.concat({ name: newName }))
-      setNewName('')
+    if (persons.some(person => person.name === newName)) {
+      alert(`${newName} is already added to the phonebook`)
       return
     }
-    alert(`${newName} is already added to the phonebook`)
+    if (persons.some(person => person.phone === newPhoneNumber)) {
+      alert(`${newPhoneNumber} is already added to the phonebook`)
+      return
+    }
+    setPersons(persons.concat({ name: newName, phone: newPhoneNumber }))
+    setNewName('')
+    setNewPhoneNumber('+358')
   }
 
-  const handleNoteChange = (event) => {
+  const handleNameChange = (event) => {
     setNewName(event.target.value)
+  }
+
+  const handlePhoneChange = (event) => {
+    setNewPhoneNumber(event.target.value)
   }
 
   return (
@@ -25,15 +35,18 @@ const App = () => {
       <h2>Phonebook</h2>
       <form>
         <div>
-          name: <input value={newName} onChange={handleNoteChange} />
+          name: <input value={newName} onChange={handleNameChange} />
         </div>
         <div>
-          <button type="submit" onClick={addNewName}>add</button>
+          number: <input value={newPhoneNumber} onChange={handlePhoneChange} />
+        </div>
+        <div>
+          <button type="submit" onClick={addNewContact}>add</button>
         </div>
       </form>
       <h2>Numbers</h2>
       {
-        persons.map(person => <p key={person.name}> {person.name} </p>)
+        persons.map(person => <p key={person.name}> {person.name} {person.phone} </p>)
       }
     </div >
   )
