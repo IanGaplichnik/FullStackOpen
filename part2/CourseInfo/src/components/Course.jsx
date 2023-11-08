@@ -4,16 +4,24 @@ const Part = ({ part }) => {
   )
 }
 
-const PartsList = ({ course }) => {
-  return course.parts.map(part => <Part key={part.id} part={part}> </Part>)
+const Content = ({ parts }) => {
+  const total = parts.reduce((s, p) => s + p.exercises, 0)
+
+  return (
+    <div>
+      {parts.map(part => <Part key={part.id} part={part}> </Part>)}
+      <p>total of {total} exercises</p>
+    </div>
+  )
 }
 
 const Course = ({ course }) => {
+
   return (
     <div>
       <h1>{course.name}</h1>
-      <PartsList course={course}></PartsList>
-    </div >
+      <Content parts={course.parts}></Content>
+    </div>
   )
 }
 
