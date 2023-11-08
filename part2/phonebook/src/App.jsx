@@ -6,6 +6,7 @@ const App = () => {
   ])
   const [newName, setNewName] = useState('Enter new name')
   const [newPhoneNumber, setNewPhoneNumber] = useState('+358')
+  const [filterKey, setNewFilterKey] = useState('')
 
   const addNewContact = (event) => {
     event.preventDefault()
@@ -22,23 +23,25 @@ const App = () => {
     setNewPhoneNumber('+358')
   }
 
-  const handleNameChange = (event) => {
-    setNewName(event.target.value)
-  }
+  const handleChange = (setFunction) => (event) => setFunction(event.target.value)
 
-  const handlePhoneChange = (event) => {
-    setNewPhoneNumber(event.target.value)
-  }
+  const contactsToDisplay = persons.filter(person => person.name.toLowerCase().startsWith(filterKey.toLowerCase()))
 
   return (
     <div>
       <h2>Phonebook</h2>
       <form>
         <div>
-          name: <input value={newName} onChange={handleNameChange} />
+          filter shown with <input value={filterKey} onChange={handleChange(setNewFilterKey)} />
+        </div>
+      </form>
+      <h2>Add a new</h2>
+      <form>
+        <div>
+          name: <input value={newName} onChange={handleChange(setNewName)} />
         </div>
         <div>
-          number: <input value={newPhoneNumber} onChange={handlePhoneChange} />
+          number: <input value={newPhoneNumber} onChange={handleChange(setNewPhoneNumber)} />
         </div>
         <div>
           <button type="submit" onClick={addNewContact}>add</button>
@@ -46,7 +49,7 @@ const App = () => {
       </form>
       <h2>Numbers</h2>
       {
-        persons.map(person => <p key={person.name}> {person.name} {person.phone} </p>)
+        contactsToDisplay.map(person => <p key={person.name}> {person.name} {person.phone} </p>)
       }
     </div >
   )
