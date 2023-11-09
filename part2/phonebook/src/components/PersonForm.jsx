@@ -1,4 +1,4 @@
-import axios from "axios"
+import contactsService from '../services/Contacts'
 
 const PersonForm = ({ newName, onNameChange, onNumberChange, newPhoneNumber, persons, setPersons, setNewName, setNewPhoneNumber }) => {
 
@@ -18,10 +18,10 @@ const PersonForm = ({ newName, onNameChange, onNumberChange, newPhoneNumber, per
       number: newPhoneNumber
     }
 
-    axios
-      .post('http://localhost:3001/persons', newContact)
-      .then(response => {
-        setPersons(persons.concat(response.data))
+    contactsService
+      .addContactDB(newContact)
+      .then(contact => {
+        setPersons(persons.concat(contact))
         setNewName('')
         setNewPhoneNumber('+358')
       })

@@ -4,6 +4,7 @@ import axios from 'axios'
 import SearchFilter from './components/SearchFilter'
 import PersonForm from './components/PersonForm'
 import Contacts from './components/Contact'
+import contactsService from './services/Contacts'
 
 const App = () => {
   const [persons, setPersons] = useState([])
@@ -18,11 +19,10 @@ const App = () => {
     person.name.toLowerCase().startsWith(filterKey.toLowerCase()))
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        const contactList = response.data
-        setPersons(contactList)
+    contactsService.
+      getAllContactsDB()
+      .then(contacts => {
+        setPersons(contacts)
       })
   }, [])
 

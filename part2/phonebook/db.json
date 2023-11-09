@@ -21,14 +21,19 @@
       "id": 4
     },
     {
-      "name": "Enter new name",
-      "number": "+358",
+      "name": "New Name",
+      "number": "+358123",
       "id": 5
     },
     {
-      "name": "Enter new names",
+      "name": "New",
       "number": "+3581",
       "id": 6
+    },
+    {
+      "name": "Enter newa name",
+      "number": "+358a",
+      "id": 7
     }
   ]
 }
