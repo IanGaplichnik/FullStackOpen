@@ -6,11 +6,11 @@ const PersonForm = ({ newName, onNameChange, onNumberChange, newPhoneNumber, per
       alert(`${newName} is already added to the phonebook`)
       return
     }
-    if (persons.some(person => person.phone === newPhoneNumber)) {
+    if (persons.some(person => person.number === newPhoneNumber)) {
       alert(`${newPhoneNumber} is already added to the phonebook`)
       return
     }
-    setPersons(persons.concat({ name: newName, phone: newPhoneNumber }))
+    setPersons(persons.concat({ name: newName, number: newPhoneNumber }))
     setNewName('')
     setNewPhoneNumber('+358')
   }
