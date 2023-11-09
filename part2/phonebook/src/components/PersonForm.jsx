@@ -4,12 +4,33 @@ const PersonForm = ({ newName, onNameChange, onNumberChange, newPhoneNumber, per
 
   const addNewContact = (event) => {
     event.preventDefault()
-    if (persons.some(person => person.name === newName)) {
-      alert(`${newName} is already added to the phonebook`)
+
+    const sameOldPerson = persons.find(person => person.name.toLowerCase() === newName.toLowerCase())
+
+    if (sameOldPerson && sameOldPerson.number === newPhoneNumber) {
+      window.alert(`${sameOldPerson.name} has already been added!`)
       return
     }
-    if (persons.some(person => person.number === newPhoneNumber)) {
-      alert(`${newPhoneNumber} is already added to the phonebook`)
+
+    if (sameOldPerson) {
+      if (window.confirm(`${sameOldPerson.name} already exists, would you like to replace phone number?`)) {
+        const samePersonNewNumber = { ...sameOldPerson, number: newPhoneNumber }
+        contactsService
+          .updatePhoneNumber(samePersonNewNumber)
+          .then(() => {
+            const newContactList = persons.map(person =>
+              person === sameOldPerson ? samePersonNewNumber : person)
+            setPersons(newContactList)
+            setNewName('')
+            setNewPhoneNumber('+358')
+          })
+          .catch(error => {
+            window.alert(`Looks like user ${sameOldPerson.name} doesn't exist!`)
+            setPersons(persons.filter(person => person.id !== sameOldPerson.id))
+            setNewName('')
+            setNewPhoneNumber('+358')
+          })
+      }
       return
     }
 
@@ -25,6 +46,7 @@ const PersonForm = ({ newName, onNameChange, onNumberChange, newPhoneNumber, per
         setNewName('')
         setNewPhoneNumber('+358')
       })
+      .catch(error => console.log(`Some error ${error}`))
   }
 
   return (

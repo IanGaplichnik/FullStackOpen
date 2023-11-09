@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
 
 import SearchFilter from './components/SearchFilter'
 import PersonForm from './components/PersonForm'
@@ -24,6 +23,7 @@ const App = () => {
       .then(contacts => {
         setPersons(contacts)
       })
+      .catch(error => console.log(`Some error ${error}`))
   }, [])
 
   return (
@@ -43,7 +43,11 @@ const App = () => {
       >
       </PersonForm>
       <h2>Numbers</h2>
-      <Contacts contactsToDisplay={contactsToDisplay}></Contacts>
+      <Contacts
+        contactsToDisplay={contactsToDisplay}
+        allContacts={persons}
+        setPersons={setPersons}>
+      </Contacts>
     </div >
   )
 }
