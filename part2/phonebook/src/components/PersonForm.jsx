@@ -1,3 +1,5 @@
+import axios from "axios"
+
 const PersonForm = ({ newName, onNameChange, onNumberChange, newPhoneNumber, persons, setPersons, setNewName, setNewPhoneNumber }) => {
 
   const addNewContact = (event) => {
@@ -10,9 +12,19 @@ const PersonForm = ({ newName, onNameChange, onNumberChange, newPhoneNumber, per
       alert(`${newPhoneNumber} is already added to the phonebook`)
       return
     }
-    setPersons(persons.concat({ name: newName, number: newPhoneNumber }))
-    setNewName('')
-    setNewPhoneNumber('+358')
+
+    const newContact = {
+      name: newName,
+      number: newPhoneNumber
+    }
+
+    axios
+      .post('http://localhost:3001/persons', newContact)
+      .then(response => {
+        setPersons(persons.concat(response.data))
+        setNewName('')
+        setNewPhoneNumber('+358')
+      })
   }
 
   return (
