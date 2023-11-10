@@ -12,12 +12,16 @@ const getAllContactsDB = () => {
   return request.then(response => response.data)
 }
 
+// const getAllContactsDB = () => {
+//   const request = axios.get(baseURL)
+//   const fake = { name: "Hola", number: "040-123123" }
+//   return request.then(response => response.data.concat(fake))
+// }
+
 const deleteContact = id => {
   const request = axios.delete(`${baseURL}/${id}`)
 
-  return request.then(response => {
-    console.log('Deleted successfully', response);
-  })
+  return request.then();
 }
 
 const updatePhoneNumber = newObject => {
