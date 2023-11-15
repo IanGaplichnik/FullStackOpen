@@ -25,8 +25,16 @@ let persons = [
 ]
 
 app.get('/api/persons', (request, response) => {
-  console.log('get')
   response.json(persons)
+})
+
+app.get('/info', (request, response) => {
+  console.log("/info");
+  const requestArriveTime = Date.now()
+  const date = new Date(requestArriveTime)
+  const formattedTime = date.toGMTString();
+  const answer = `<p>Phonebook has info for ${persons.length} people<br/>${formattedTime}</p>`
+  response.send(answer)
 })
 
 const PORT = 3001
