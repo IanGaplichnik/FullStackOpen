@@ -28,6 +28,17 @@ app.get('/api/persons', (request, response) => {
   response.json(persons)
 })
 
+app.get('/api/persons/:id', (request, response) => {
+  const id = Number(request.params.id)
+  const note = persons.find(person => person.id === id)
+
+  if (!note) {
+    response.status(404).end()
+  } else {
+    response.json(note)
+  }
+})
+
 app.get('/info', (request, response) => {
   console.log("/info");
   const requestArriveTime = Date.now()
