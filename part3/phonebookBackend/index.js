@@ -1,6 +1,8 @@
 const express = require('express')
 const app = express()
 
+app.use(express.json())
+
 let persons = [
   {
     "id": 1,
@@ -20,11 +22,6 @@ let persons = [
   {
     "id": 4,
     "name": "Mary Poppendieck",
-    "number": "39-23-6423122"
-  },
-  {
-    "id": 5,
-    "name": "Mary",
     "number": "39-23-6423122"
   }
 ]
@@ -58,6 +55,46 @@ app.get('/info', (request, response) => {
   const formattedTime = date.toGMTString();
   const answer = `<p>Phonebook has info for ${persons.length} people<br/>${formattedTime}</p>`
   response.send(answer)
+})
+
+const generateId = () => {
+  const maxId = persons.length > 0 ?
+    Math.max(...persons.map(person => person.id)) : 0
+
+  return maxId + 1
+}
+
+app.post('/api/persons', (req, res) => {
+  const body = req.body
+  console.log(body)
+
+  if (!body.name) {
+    return res.status(400).json({
+      error: 'content missing'
+    })
+  }
+
+  if (!body.number) {
+    return res.status(400).json({
+      error: 'number missing'
+    })
+  }
+
+  if (persons.some(person => person.name === body.name)) {
+    return res.status(400).json({
+      error: 'name must be unique'
+    })
+  }
+
+  const person = {
+    id: generateId(),
+    name: body.name,
+    number: body.number
+  }
+
+  persons = persons.concat(person)
+
+  res.json(person)
 })
 
 const PORT = 3001
