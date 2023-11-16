@@ -1,7 +1,11 @@
 const express = require('express')
 const app = express()
+const morgan = require('morgan')
 
 app.use(express.json())
+
+morgan.token('postData', function (req, res) { return JSON.stringify(req.body) })
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postData'))
 
 let persons = [
   {
@@ -49,7 +53,6 @@ app.delete('/api/persons/:id', (req, res) => {
 })
 
 app.get('/info', (request, response) => {
-  console.log("/info");
   const requestArriveTime = Date.now()
   const date = new Date(requestArriveTime)
   const formattedTime = date.toGMTString();
@@ -66,7 +69,6 @@ const generateId = () => {
 
 app.post('/api/persons', (req, res) => {
   const body = req.body
-  console.log(body)
 
   if (!body.name) {
     return res.status(400).json({
@@ -96,6 +98,12 @@ app.post('/api/persons', (req, res) => {
 
   res.json(person)
 })
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: 'unknown endpoint' })
+}
+
+app.use(unknownEndpoint)
 
 const PORT = 3001
 app.listen(PORT)
