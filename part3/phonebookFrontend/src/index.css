@@ -1,0 +1,18 @@
+.notificationSuccess,
+.notificationFail {
+    font-size: 20px;
+    border-style: solid;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.notificationFail {
+    color: #ffffff;
+    background-color: rgb(167, 67, 37);
+}
+
+.notificationSuccess {
+    color: #2B3246;
+    background-color: rgba(147, 209, 117, 0.50);
+}
