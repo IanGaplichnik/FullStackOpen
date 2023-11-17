@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const baseURL = 'http://localhost:3001/persons'
+const baseURL = '/api/persons'
 
 const addContactDB = newObject => {
   const request = axios.post(baseURL, newObject)
@@ -25,7 +25,7 @@ const deleteContact = id => {
 }
 
 const updatePhoneNumber = newObject => {
-  const updateURL = `${baseURL}/${newObject.id}`
+  const updateURL = `${baseURL}`
   const request = axios.put(updateURL, newObject)
 
   return request.then(response => response.data)
