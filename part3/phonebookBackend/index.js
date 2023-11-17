@@ -1,6 +1,9 @@
 const express = require('express')
 const app = express()
 const morgan = require('morgan')
+const cors = require('cors')
+
+app.use(cors())
 
 app.use(express.json())
 
@@ -72,7 +75,7 @@ app.post('/api/persons', (req, res) => {
 
   if (!body.name) {
     return res.status(400).json({
-      error: 'content missing'
+      error: 'name missing'
     })
   }
 
@@ -82,7 +85,7 @@ app.post('/api/persons', (req, res) => {
     })
   }
 
-  if (persons.some(person => person.name === body.name)) {
+  if (persons.some(person => person.name.toLowerCase() === body.name.toLowerCase())) {
     return res.status(400).json({
       error: 'name must be unique'
     })
@@ -105,6 +108,6 @@ const unknownEndpoint = (request, response) => {
 
 app.use(unknownEndpoint)
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT)
 console.log(`Server running on port ${PORT}`)
