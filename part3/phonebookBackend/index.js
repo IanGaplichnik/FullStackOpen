@@ -47,13 +47,6 @@ app.get('/info', (request, response) => {
   response.send(answer)
 })
 
-const generateId = () => {
-  const maxId = persons.length > 0 ?
-    Math.max(...persons.map(person => person.id)) : 0
-
-  return maxId + 1
-}
-
 app.post('/api/persons', (req, res) => {
   const body = req.body
 
@@ -69,21 +62,14 @@ app.post('/api/persons', (req, res) => {
     })
   }
 
-  if (persons.some(person => person.name.toLowerCase() === body.name.toLowerCase())) {
-    return res.status(400).json({
-      error: 'name must be unique'
-    })
-  }
-
-  const person = {
-    id: generateId(),
+  const person = new Person({
     name: body.name,
     number: body.number
-  }
+  })
 
-  persons = persons.concat(person)
-
-  res.json(person)
+  person.save().then(person => {
+    res.json(person)
+  })
 })
 
 const unknownEndpoint = (request, response) => {
