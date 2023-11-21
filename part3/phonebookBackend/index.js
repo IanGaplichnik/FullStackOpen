@@ -21,30 +21,31 @@ app.get('/api/persons', (request, response) => {
   })
 })
 
-app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id)
-  const note = persons.find(person => person.id === id)
+app.get('/api/persons/:id', (request, response, next) => {
+  const id = request.params.id
 
-  if (!note) {
-    response.status(404).end()
-  } else {
-    response.json(note)
-  }
+  Person.findById(id).then(person => {
+    response.json(person)
+  })
+    .catch(error => next(error))
 })
 
-app.delete('/api/persons/:id', (req, res) => {
-  const id = Number(req.params.id)
-  persons = persons.filter(note => note.id !== id)
-
-  res.status(204).end()
+app.delete('/api/persons/:id', (req, res, next) => {
+  Person.findByIdAndDelete(req.params.id)
+    .then(result => {
+      res.status(204).end()
+    })
+    .catch(error => next(error))
 })
 
 app.get('/info', (request, response) => {
   const requestArriveTime = Date.now()
   const date = new Date(requestArriveTime)
   const formattedTime = date.toGMTString();
-  const answer = `<p>Phonebook has info for ${persons.length} people<br/>${formattedTime}</p>`
-  response.send(answer)
+  Person.find({}).then(persons => {
+    const answer = `<p>Phonebook has info for ${persons.length} people<br/>${formattedTime}</p>`
+    response.send(answer)
+  })
 })
 
 app.post('/api/persons', (req, res) => {
@@ -72,11 +73,40 @@ app.post('/api/persons', (req, res) => {
   })
 })
 
+app.put('/api/persons/:id', (request, response) => {
+  const id = request.params.id
+
+  const person = request.body
+  const newPerson = {
+    name: person.name,
+    number: person.number
+  }
+
+  Person.findByIdAndUpdate(id, person, { new: true })
+    .then(updatedPerson => {
+      response.json(updatedPerson)
+    })
+    .catch(error => next(error))
+})
+
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: 'unknown endpoint' })
 }
 
 app.use(unknownEndpoint)
+
+//This error handler is passed as "next" in catch blocks
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message)
+
+  if (error.name === 'CastError') {
+    return response.status(404).send({ error: 'malformatted id' })
+  }
+
+  next(error)
+}
+
+app.use(errorHandler)
 
 app.listen(PORT)
 console.log(`Server running on port ${PORT}`)
