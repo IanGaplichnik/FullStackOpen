@@ -10,7 +10,7 @@ import Notification from './components/Notification'
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('Enter new name')
-  const [newPhoneNumber, setNewPhoneNumber] = useState('+358')
+  const [newPhoneNumber, setNewPhoneNumber] = useState('04')
   const [filterKey, setNewFilterKey] = useState('')
   const [notificationMsg, setNotificationMsg] = useState(null)
   const [notificationStatus, setNotificationStatus] = useState('notificationSuccess')
@@ -39,15 +39,14 @@ const App = () => {
           person === contactToReplace ? samePersonNewNumber : person)
         setPersons(newContactList)
         setNewName('')
-        setNewPhoneNumber('+358')
+        setNewPhoneNumber('04')
         setNotificationMsg(`Contact ${samePersonNewNumber.name} is now updated`)
         setNotificationStatus('notificationSuccess')
       })
       .catch(error => {
-        setPersons(persons.filter(person => person.id !== contactToReplace.id))
         setNewName('')
-        setNewPhoneNumber('+358')
-        setNotificationMsg(`Couldn't update ${samePersonNewNumber.name}, it's deleted from server`)
+        setNewPhoneNumber('04')
+        setNotificationMsg(error.response.data.error)
         setNotificationStatus('notificationFail')
         setTimeout(() => setNotificationMsg(null), 5000)
       })
@@ -59,12 +58,16 @@ const App = () => {
       .then(contact => {
         setPersons(persons.concat(contact))
         setNewName('')
-        setNewPhoneNumber('+358')
+        setNewPhoneNumber('04')
         setNotificationMsg(`Added ${contact.name}`)
         setNotificationStatus('notificationSuccess')
         setTimeout(() => setNotificationMsg(null), 5000)
       })
-      .catch(error => console.log(`Some error ${error}`))
+      .catch(error => {
+        setNotificationMsg(error.response.data.error)
+        setNotificationStatus('notificationFail')
+        setTimeout(() => setNotificationMsg(null), 5000)
+      })
   }
 
   const addNewContact = (event) => {

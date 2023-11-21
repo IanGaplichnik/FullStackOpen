@@ -12,11 +12,17 @@ app.use(cors())
 
 app.use(express.json())
 
-morgan.token('postData', function (req, res) { return JSON.stringify(req.body) })
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postData'))
+morgan.token('postData', function (req) {
+  return JSON.stringify(req.body)
+})
+app.use(
+  morgan(
+    ':method :url :status :res[content-length] - :response-time ms :postData'
+  )
+)
 
 app.get('/api/persons', (request, response) => {
-  Person.find({}).then(persons => {
+  Person.find({}).then((persons) => {
     response.json(persons)
   })
 })
@@ -24,69 +30,77 @@ app.get('/api/persons', (request, response) => {
 app.get('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
 
-  Person.findById(id).then(person => {
-    response.json(person)
-  })
-    .catch(error => next(error))
+  Person.findById(id)
+    .then((person) => {
+      response.json(person)
+    })
+    .catch((error) => next(error))
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndDelete(req.params.id)
-    .then(result => {
+    .then(() => {
       res.status(204).end()
     })
-    .catch(error => next(error))
+    .catch((error) => next(error))
 })
 
 app.get('/info', (request, response) => {
   const requestArriveTime = Date.now()
   const date = new Date(requestArriveTime)
-  const formattedTime = date.toGMTString();
-  Person.find({}).then(persons => {
+  const formattedTime = date.toGMTString()
+  Person.find({}).then((persons) => {
     const answer = `<p>Phonebook has info for ${persons.length} people<br/>${formattedTime}</p>`
     response.send(answer)
   })
 })
 
-app.post('/api/persons', (req, res) => {
+app.post('/api/persons', (req, res, next) => {
   const body = req.body
 
   if (!body.name) {
     return res.status(400).json({
-      error: 'name missing'
+      error: 'name missing',
     })
   }
 
   if (!body.number) {
     return res.status(400).json({
-      error: 'number missing'
+      error: 'number missing',
     })
   }
 
   const person = new Person({
     name: body.name,
-    number: body.number
+    number: body.number,
   })
 
-  person.save().then(person => {
-    res.json(person)
-  })
+  person
+    .save()
+    .then((person) => {
+      res.json(person)
+    })
+    .catch((error) => next(error))
 })
 
-app.put('/api/persons/:id', (request, response) => {
+app.put('/api/persons/:id', (request, response, next) => {
   const id = request.params.id
 
   const person = request.body
   const newPerson = {
     name: person.name,
-    number: person.number
+    number: person.number,
   }
 
-  Person.findByIdAndUpdate(id, person, { new: true })
-    .then(updatedPerson => {
+  Person.findByIdAndUpdate(id, newPerson, {
+    new: true,
+    runValidators: true,
+    context: 'query',
+  })
+    .then((updatedPerson) => {
       response.json(updatedPerson)
     })
-    .catch(error => next(error))
+    .catch((error) => next(error))
 })
 
 const unknownEndpoint = (request, response) => {
@@ -100,7 +114,9 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.message)
 
   if (error.name === 'CastError') {
-    return response.status(404).send({ error: 'malformatted id' })
+    return response.status(400).send({ error: 'malformatted id' })
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).send({ error: error.message })
   }
 
   next(error)
