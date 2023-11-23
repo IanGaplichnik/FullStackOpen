@@ -1,8 +1,9 @@
 module.exports = {
   'env': {
-    'browser': true,
+    'node': true,
     'commonjs': true,
-    'es2021': true
+    'es2021': true,
+    'jest': true
   },
   'extends': 'eslint:recommended',
   'overrides': [
@@ -37,6 +38,14 @@ module.exports = {
     'semi': [
       'error',
       'never'
+    ],
+    'eqeqeq': 'error',
+    'no-trailing-spaces': 'error',
+    'object-curly-spacing': [
+      'error', 'always'
+    ],
+    'arrow-spacing': [
+      'error', { 'before': true, 'after': true }
     ]
   }
 }
