@@ -39,8 +39,9 @@ test('post request saves blog correctly', async () => {
     likes: 20
   }
 
-  const blogToSave = Blog(exampleBlog)
-  await blogToSave.save()
+  await api
+    .post('/api/blogs')
+    .send(exampleBlog)
 
   const response = await api.get('/api/blogs/')
   const lastBlogIndex = response.body.length - 1
@@ -51,6 +52,24 @@ test('post request saves blog correctly', async () => {
   expect(exampleBlog).toStrictEqual(receivedBlog)
 })
 
+test('post request without likes saves 0 likes', async () => {
+  const blogWOLikes = {
+    title: 'Template Title',
+    author: 'Template author',
+    url: 'Template URL',
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(blogWOLikes)
+
+  const response = await api.get('/api/blogs/')
+  const lastBlogIndex = response.body.length - 1
+  const receivedBlog = response.body[lastBlogIndex]
+
+  expect(blogWOLikes.likes).toBeUndefined()
+  expect(receivedBlog.likes).toEqual(0)
+})
 
 afterAll(async () => {
   await mongoose.connection.close()
