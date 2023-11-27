@@ -25,6 +25,13 @@ test('server returns right amount of blogs', async () => {
   expect(response.body).toHaveLength(initialBlogList.length)
 })
 
+test('backend renames __id parameter to id', async () => {
+  const response = await api.get('/api/blogs')
+
+  response.body.map(blog => expect(blog.id).toBeDefined())
+}, 100000)
+
+
 afterAll(async () => {
   await mongoose.connection.close()
 })
