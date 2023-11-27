@@ -31,6 +31,26 @@ test('backend renames __id parameter to id', async () => {
   response.body.map(blog => expect(blog.id).toBeDefined())
 }, 100000)
 
+test('post request saves blog correctly', async () => {
+  const exampleBlog = {
+    title: 'Template Title',
+    author: 'Template author',
+    url: 'Template URL',
+    likes: 20
+  }
+
+  const blogToSave = Blog(exampleBlog)
+  await blogToSave.save()
+
+  const response = await api.get('/api/blogs/')
+  const lastBlogIndex = response.body.length - 1
+  const receivedBlog = response.body[lastBlogIndex]
+  delete receivedBlog.id
+
+  expect(response.body.length).toEqual(initialBlogList.length + 1)
+  expect(exampleBlog).toStrictEqual(receivedBlog)
+})
+
 
 afterAll(async () => {
   await mongoose.connection.close()
