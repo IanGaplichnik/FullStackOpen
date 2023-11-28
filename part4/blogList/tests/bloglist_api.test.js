@@ -29,7 +29,7 @@ describe('when there is initially some saved blogs', () => {
     const response = await api.get('/api/blogs')
 
     response.body.map(blog => expect(blog.id).toBeDefined())
-  }, 100000)
+  })
 
   test('post request saves blog correctly', async () => {
     const exampleBlog = {
@@ -50,7 +50,7 @@ describe('when there is initially some saved blogs', () => {
 
     expect(response.body.length).toEqual(initialBlogList.length + 1)
     expect(exampleBlog).toStrictEqual(receivedBlog)
-  }, 100000)
+  })
 
   test('post request without likes saves 0 likes', async () => {
     const blogWOLikes = {
@@ -93,6 +93,20 @@ describe('when there is initially some saved blogs', () => {
       .post('/api/blogs')
       .send(blogWOUrl)
       .expect(400)
+  })
+
+  test('delete valid object works', async () => {
+    const blogs = await api.get('/api/blogs')
+    const idToDelete = blogs.body[0].id
+    await api
+      .delete(`/api/blogs/${idToDelete}`)
+      .expect(200)
+  })
+
+  test('delete invalid object works', async () => {
+    await api
+      .delete(`/api/blogs/1`)
+      .expect(404)
   })
 })
 
