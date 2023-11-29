@@ -105,8 +105,34 @@ describe('when there is initially some saved blogs', () => {
 
   test('delete invalid object works', async () => {
     await api
-      .delete(`/api/blogs/1`)
+      .delete('/api/blogs/1')
       .expect(404)
+  })
+
+  test('update valid object', async () => {
+    const blogsInCloud = await api
+      .get('/api/blogs')
+
+    const blogUpdateId = blogsInCloud.body[0].id
+
+    delete blogsInCloud.body[0].id
+    expect(initialBlogList).toContainEqual(blogsInCloud.body[0])
+
+    const updateBlog = {
+      title: 'new title',
+      author: 'new author',
+      url: 'new url',
+      likes: 15
+    }
+
+    const response = await api
+      .put(`/api/blogs/${blogUpdateId}`)
+      .send(updateBlog)
+      .expect(200)
+
+    delete response.body.id
+
+    expect(response.body).toStrictEqual(updateBlog)
   })
 })
 
