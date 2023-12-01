@@ -2,7 +2,8 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require('../models/blog')
-const initialBlogList = require('./test_helper').initialBlogList
+const User = require('../models/user')
+const testHelper = require('./test_helper')
 
 const api = supertest(app)
 
@@ -10,7 +11,7 @@ beforeEach(async () => {
   await Blog.deleteMany({})
   console.log('cleared')
 
-  const blogObjects = initialBlogList.map(blog => new Blog(blog))
+  const blogObjects = testHelper.initialBlogList.map(blog => new Blog(blog))
   const promiseArray = blogObjects.map(blog => blog.save())
   await Promise.all(promiseArray)
 })
@@ -22,7 +23,7 @@ describe('when there is initially some saved blogs', () => {
       .expect(200)
       .expect('Content-Type', /application\/json/)
 
-    expect(response.body).toHaveLength(initialBlogList.length)
+    expect(response.body).toHaveLength(testHelper.initialBlogList.length)
   })
 
   test('backend renames __id parameter to id', async () => {
@@ -43,12 +44,12 @@ describe('when there is initially some saved blogs', () => {
       .post('/api/blogs')
       .send(exampleBlog)
 
-    const response = await api.get('/api/blogs/')
-    const lastBlogIndex = response.body.length - 1
-    const receivedBlog = response.body[lastBlogIndex]
+    const blogsInDb = await testHelper.blogsInDb()
+    const lastBlogIndex = blogsInDb.length - 1
+    const receivedBlog = blogsInDb[lastBlogIndex]
     delete receivedBlog.id
 
-    expect(response.body.length).toEqual(initialBlogList.length + 1)
+    expect(blogsInDb.length).toEqual(testHelper.initialBlogList.length + 1)
     expect(exampleBlog).toStrictEqual(receivedBlog)
   })
 
@@ -116,7 +117,7 @@ describe('when there is initially some saved blogs', () => {
     const blogUpdateId = blogsInCloud.body[0].id
 
     delete blogsInCloud.body[0].id
-    expect(initialBlogList).toContainEqual(blogsInCloud.body[0])
+    expect(testHelper.initialBlogList).toContainEqual(blogsInCloud.body[0])
 
     const updateBlog = {
       title: 'new title',
@@ -134,6 +135,40 @@ describe('when there is initially some saved blogs', () => {
 
     expect(response.body).toStrictEqual(updateBlog)
   })
+})
+
+describe('when there are users', () => {
+  beforeEach(async () => {
+    await User.deleteMany({})
+    console.log('user db cleared')
+
+    const newUsers = testHelper.initialUserList.map(user => new User(user))
+    const promises = newUsers.map(async (user) => user.save())
+    await Promise.all(promises)
+    console.log('saved initial users')
+  })
+
+  test('creating blog for user works', async () => {
+    const usersInDb = await testHelper.usersInDb()
+    const someUserId = usersInDb[0].id
+    console.log(someUserId)
+
+    const blog = {
+      title: 'new title',
+      author: 'new author',
+      url: 'new url',
+      likes: 15,
+      user: someUserId
+    }
+
+    const blogToSave = new Blog(blog)
+    const savedBlog = await blogToSave.save()
+    // console.log(savedBlog)
+    const response = await api.get('/api/blogs')
+    console.log(response.body)
+
+  })
+
 })
 
 afterAll(async () => {
