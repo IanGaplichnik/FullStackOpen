@@ -147,28 +147,6 @@ describe('when there are users', () => {
     await Promise.all(promises)
     console.log('saved initial users')
   })
-
-  test('creating blog for user works', async () => {
-    const usersInDb = await testHelper.usersInDb()
-    const someUserId = usersInDb[0].id
-    console.log(someUserId)
-
-    const blog = {
-      title: 'new title',
-      author: 'new author',
-      url: 'new url',
-      likes: 15,
-      user: someUserId
-    }
-
-    const blogToSave = new Blog(blog)
-    const savedBlog = await blogToSave.save()
-    // console.log(savedBlog)
-    const response = await api.get('/api/blogs')
-    console.log(response.body)
-
-  })
-
 })
 
 afterAll(async () => {

@@ -1,5 +1,8 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
+const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+const middleware = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response, next) => {
   try {
@@ -15,17 +18,26 @@ blogsRouter.post('/', async (request, response, next) => {
     || !Object.hasOwn(request.body, 'url'))
     return response.status(400).end()
 
-  const blogRequest = {
-    likes: request.body.likes ? request.body.likes : 0,
-    ...request.body
+  if (!Object.hasOwn(request, 'token')) {
+    return response.status(401).json({ error: 'token invalid' })
   }
-  const blog = new Blog(blogRequest)
-
   try {
-    const result = await blog.save()
-    response.status(201).json(result)
-  } catch(exception) {
-    next(exception)
+    const decodedToken = jwt.verify(request.token, process.env.SECRET)
+    const user = await User.findById(decodedToken.id)
+    const blogRequest = {
+      likes: request.body.likes ? request.body.likes : 0,
+      user: user,
+      ...request.body
+    }
+    const blog = new Blog(blogRequest)
+    try {
+      const result = await blog.save()
+      response.status(201).json(result)
+    } catch(exception) {
+      next(exception)
+    }
+  } catch (err) {
+    return response.status(400).json(err)
   }
 })
 
