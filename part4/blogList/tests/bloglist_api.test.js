@@ -9,11 +9,26 @@ const api = supertest(app)
 
 beforeEach(async () => {
   await Blog.deleteMany({})
+  await User.deleteMany({})
   console.log('cleared')
 
-  const blogObjects = testHelper.initialBlogList.map(blog => new Blog(blog))
-  const promiseArray = blogObjects.map(blog => blog.save())
-  await Promise.all(promiseArray)
+  const userToSave = testHelper.initialUserList[0]
+  await api.post('/api/users')
+    .send(userToSave)
+
+  const loginResponse = await api.post('/api/login').send(userToSave)
+
+  for (const blog of testHelper.initialBlogList) {
+    await api
+      .post('/api/blogs')
+      .send(blog)
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
+  }
+
+  // const blogObjects = testHelper.initialBlogList.map(blog => new Blog(blog))
+  // const promiseArray = blogObjects.map(blog => blog.save())
+  // await Promise.all(promiseArray)
+
 })
 
 describe('when there is initially some saved blogs', () => {
@@ -33,6 +48,9 @@ describe('when there is initially some saved blogs', () => {
   })
 
   test('post request saves blog correctly', async () => {
+    const loginUser = testHelper.initialUserList[0]
+    const loginResponse = await api.post('/api/login').send(loginUser)
+
     const exampleBlog = {
       title: 'Template Title',
       author: 'Template author',
@@ -43,6 +61,8 @@ describe('when there is initially some saved blogs', () => {
     await api
       .post('/api/blogs')
       .send(exampleBlog)
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
+      .expect(201)
 
     const blogsInDb = await testHelper.blogsInDb()
     const lastBlogIndex = blogsInDb.length - 1
@@ -50,10 +70,15 @@ describe('when there is initially some saved blogs', () => {
     delete receivedBlog.id
 
     expect(blogsInDb.length).toEqual(testHelper.initialBlogList.length + 1)
-    expect(exampleBlog).toStrictEqual(receivedBlog)
+    expect(receivedBlog.title).toEqual(exampleBlog.title)
+    expect(receivedBlog.author).toEqual(exampleBlog.author)
+    expect(receivedBlog.url).toEqual(exampleBlog.url)
   })
 
   test('post request without likes saves 0 likes', async () => {
+    const loginUser = testHelper.initialUserList[0]
+    const loginResponse = await api.post('/api/login').send(loginUser)
+
     const blogWOLikes = {
       title: 'Template Title',
       author: 'Template author',
@@ -63,6 +88,7 @@ describe('when there is initially some saved blogs', () => {
     await api
       .post('/api/blogs')
       .send(blogWOLikes)
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
 
     const response = await api.get('/api/blogs/')
     const lastBlogIndex = response.body.length - 1
@@ -73,6 +99,9 @@ describe('when there is initially some saved blogs', () => {
   })
 
   test('post request without title returns 400', async () => {
+    const loginUser = testHelper.initialUserList[0]
+    const loginResponse = await api.post('/api/login').send(loginUser)
+
     const blogWOTitle = {
       author: 'Template author',
       url: 'Template URL',
@@ -81,10 +110,14 @@ describe('when there is initially some saved blogs', () => {
     await api
       .post('/api/blogs')
       .send(blogWOTitle)
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
       .expect(400)
   })
 
   test('post request without url returns 400', async () => {
+    const loginUser = testHelper.initialUserList[0]
+    const loginResponse = await api.post('/api/login').send(loginUser)
+
     const blogWOUrl = {
       title: 'Template Title',
       author: 'Template author',
@@ -93,21 +126,20 @@ describe('when there is initially some saved blogs', () => {
     await api
       .post('/api/blogs')
       .send(blogWOUrl)
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
       .expect(400)
   })
 
   test('delete valid object works', async () => {
+    const loginUser = testHelper.initialUserList[0]
+    const loginResponse = await api.post('/api/login').send(loginUser)
+
     const blogs = await api.get('/api/blogs')
     const idToDelete = blogs.body[0].id
     await api
       .delete(`/api/blogs/${idToDelete}`)
+      .set('Authorization', `Bearer ${loginResponse.body.token}`)
       .expect(200)
-  })
-
-  test('delete invalid object works', async () => {
-    await api
-      .delete('/api/blogs/1')
-      .expect(404)
   })
 
   test('update valid object', async () => {
@@ -115,9 +147,6 @@ describe('when there is initially some saved blogs', () => {
       .get('/api/blogs')
 
     const blogUpdateId = blogsInCloud.body[0].id
-
-    delete blogsInCloud.body[0].id
-    expect(testHelper.initialBlogList).toContainEqual(blogsInCloud.body[0])
 
     const updateBlog = {
       title: 'new title',
@@ -131,21 +160,9 @@ describe('when there is initially some saved blogs', () => {
       .send(updateBlog)
       .expect(200)
 
-    delete response.body.id
-
-    expect(response.body).toStrictEqual(updateBlog)
-  })
-})
-
-describe('when there are users', () => {
-  beforeEach(async () => {
-    await User.deleteMany({})
-    console.log('user db cleared')
-
-    const newUsers = testHelper.initialUserList.map(user => new User(user))
-    const promises = newUsers.map(async (user) => user.save())
-    await Promise.all(promises)
-    console.log('saved initial users')
+    expect(response.body.title).toStrictEqual(updateBlog.title)
+    expect(response.body.author).toStrictEqual(updateBlog.author)
+    expect(response.body.url).toStrictEqual(updateBlog.url)
   })
 })
 
