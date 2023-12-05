@@ -1,7 +1,5 @@
 const blogsRouter = require('express').Router()
 const Blog = require('../models/blog')
-const User = require('../models/user')
-const jwt = require('jsonwebtoken')
 const middleware = require('../utils/middleware')
 
 blogsRouter.get('/', async (request, response, next) => {
@@ -13,41 +11,44 @@ blogsRouter.get('/', async (request, response, next) => {
   }
 })
 
-blogsRouter.post('/', async (request, response, next) => {
+blogsRouter.post('/', middleware.userExtractor, async (request, response, next) => {
   if (!Object.hasOwn(request.body, 'title')
     || !Object.hasOwn(request.body, 'url'))
-    return response.status(400).end()
+    return response.status(400).json({ error: 'title and url are required' })
 
-  if (!Object.hasOwn(request, 'token')) {
-    return response.status(401).json({ error: 'token invalid' })
+  const user = request.user
+  const blogRequest = {
+    likes: request.body.likes ? request.body.likes : 0,
+    user: user,
+    ...request.body
   }
+  const blog = new Blog(blogRequest)
   try {
-    const decodedToken = jwt.verify(request.token, process.env.SECRET)
-    const user = await User.findById(decodedToken.id)
-    const blogRequest = {
-      likes: request.body.likes ? request.body.likes : 0,
-      user: user,
-      ...request.body
-    }
-    const blog = new Blog(blogRequest)
-    try {
-      const result = await blog.save()
-      response.status(201).json(result)
-    } catch(exception) {
-      next(exception)
-    }
-  } catch (err) {
-    return response.status(400).json(err)
+    const result = await blog.save()
+    user.blogs = user.blogs.concat(result._id)
+    await user.save()
+    response.status(201).json(result)
+  } catch(exception) {
+    next(exception)
   }
 })
 
-blogsRouter.delete('/:id', async (request, response, next) => {
+blogsRouter.delete('/:id', middleware.userExtractor, async (request, response, next) => {
+  const user = request.user
   const id = request.params.id
   try {
-    await Blog.findByIdAndDelete(id)
-    response.status(200).end()
+    const blog = await Blog.findById(id)
+    if (!blog) {
+      return response.status(404).json({ error: 'blog not found' })
+    }
+    if (blog.user.toString() === user.id.toString())
+    {
+      blog.deleteOne()
+      response.status(200).end()
+    } else {
+      response.status(401).json({ error: 'you are not authorized to delete this blog' })
+    }
   } catch(exception) {
-    response.status(404).end()
     next(exception)
   }
 })
