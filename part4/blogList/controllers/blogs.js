@@ -13,7 +13,9 @@ blogsRouter.get('/', async (request, response, next) => {
 
 blogsRouter.post('/', middleware.userExtractor, async (request, response, next) => {
   if (!Object.hasOwn(request.body, 'title')
-    || !Object.hasOwn(request.body, 'url'))
+    || !Object.hasOwn(request.body, 'url')
+    || request.body.title.length === 0
+    || request.body.url.length === 0)
     return response.status(400).json({ error: 'title and url are required' })
 
   const user = request.user
