@@ -20,12 +20,11 @@ const errorHandler = (error, request, response, next) => {
   }
   if (error.name === 'ValidationError') {
     return response.status(400).send({ error: 'username too short or empty' })
-  } else if (error.name ===  'JsonWebTokenError') {
+  } else if (error.name === 'JsonWebTokenError') {
     return response.status(401).json({ error: error.message })
   } else if (error.name === 'TokenExpiredError') {
     return response.status(401).json({ error: 'token expired' })
-  }
-  else if (error) {
+  } else if (error) {
     logger.error(error.name)
     logger.error(error.message)
     return response.status(400).json({ error: 'some error occured' })
@@ -47,10 +46,10 @@ const userExtractor = async (request, response, next) => {
     try {
       request.user = await User.findById(verifiedToken.id)
       next()
-    } catch(exception) {
+    } catch (exception) {
       next(exception)
     }
-  } catch(err) {
+  } catch (err) {
     next(err)
   }
 }
@@ -60,5 +59,5 @@ module.exports = {
   unknownEndpoint,
   errorHandler,
   tokenExtractor,
-  userExtractor
+  userExtractor,
 }
