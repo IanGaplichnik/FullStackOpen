@@ -54,9 +54,9 @@ blogsRouter.delete(
       }
       if (blog.user.toString() === user.id.toString()) {
         blog.deleteOne()
-        response.status(200).end()
+        return response.status(200).end()
       } else {
-        response
+        return response
           .status(401)
           .json({ error: 'you are not authorized to delete this blog' })
       }
@@ -68,9 +68,10 @@ blogsRouter.delete(
 
 blogsRouter.put(
   '/:id',
-  middleware.userExtractor,
+  //   middleware.userExtractor,
   async (request, response, next) => {
     const id = request.params.id
+    console.log(id)
 
     if (
       !Object.hasOwn(request.body, 'title') ||
@@ -91,7 +92,7 @@ blogsRouter.put(
         runValidators: true,
         context: 'query',
       }).populate('user', { name: 1, username: 1 })
-      response.json(updatedResult)
+      return response.json(updatedResult)
     } catch (exception) {
       next(exception)
     }

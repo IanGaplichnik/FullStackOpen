@@ -38,12 +38,26 @@ const App = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
     blogService.setToken(null)
-    setAuthor('')
-    setTitle('')
-    setUrl('')
   }
 
-  const blogList = () => {
+
+  const sortedBlogList = () => (
+    blogs
+      .sort((a, b) => b.likes - a.likes)
+      .map(blog =>
+        <Blog
+          key={blog.id}
+          user={user}
+          blog={blog}
+          blogs={blogs}
+          setBlogs={setBlogs}
+          setErrorMessage={setErrorMessage}
+          setStatus={setStatus}
+          failureStatus={failureStatus} />
+      )
+  )
+
+  const blogBlock = () => {
     return (
       <div>
         <h2>blogs</h2>
@@ -61,14 +75,7 @@ const App = () => {
             blogFormRef={blogFormRef} />
         </Togglable>
         {
-          blogs.map(blog =>
-            <Blog
-              key={blog.id}
-              blog={blog}
-              userToken={user.token}
-              blogs={blogs}
-              setBlogs={setBlogs} />
-          )
+          sortedBlogList()
         }
       </div>
     )
@@ -86,7 +93,7 @@ const App = () => {
           failureStatus={failureStatus}
           successStatus={successStatus} />
       }
-      {user && blogList()}
+      {user && blogBlock()}
     </div>
   )
 }
