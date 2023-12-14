@@ -1,12 +1,24 @@
 import { useState } from 'react'
+import PropTypes from 'prop-types'
 
 import blogService from '../services/blogs'
 
-const BlogForm = ({ blogs, setBlogs, setErrorMessage, setStatus, successStatus, failureStatus, blogFormRef }) => {
-
+const BlogForm = ({ blogs, setBlogs, togglableRef, setNotificationText, setSuccessStatus }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
+
+  const resetFormHooks = () => {
+    setAuthor('')
+    setTitle('')
+    setUrl('')
+  }
+
+  const setNotificationBlogCreated = (savedBlog) => {
+    setNotificationText(`Blog ${savedBlog.title} by ${savedBlog.author} has been saved!`)
+    setSuccessStatus()
+    setTimeout(() => setNotificationText(null), 10000)
+  }
 
   const createBlog = async event => {
     event.preventDefault()
@@ -18,17 +30,11 @@ const BlogForm = ({ blogs, setBlogs, setErrorMessage, setStatus, successStatus, 
       const savedBlog = await blogService.create(newBlog)
       const allBlogs = blogs.concat(savedBlog)
       setBlogs(allBlogs)
-      setErrorMessage(`Blog ${savedBlog.title} by ${savedBlog.author} has been saved!`)
-      setStatus(successStatus)
-      setAuthor('')
-      setTitle('')
-      setUrl('')
-      setTimeout(() => setErrorMessage(null), 10000)
-      blogFormRef.current.toggleVisibility()
+      resetFormHooks()
+      setNotificationBlogCreated(savedBlog)
+      togglableRef.current.toggleVisibility()
     } catch (error) {
-      setErrorMessage(error.response.data.error)
-      setStatus(failureStatus)
-      setTimeout(() => setErrorMessage(null), 5000)
+      console.log(error.response.data.error)
     }
   }
 
@@ -58,6 +64,13 @@ const BlogForm = ({ blogs, setBlogs, setErrorMessage, setStatus, successStatus, 
       <button type="submit">create</button>
     </form>
   )
+}
+
+BlogForm.propTypes = {
+  blogs: PropTypes.array.isRequired,
+  setBlogs: PropTypes.func.isRequired,
+  setNotificationText: PropTypes.func.isRequired,
+  setSuccessStatus: PropTypes.func.isRequired
 }
 
 export default BlogForm

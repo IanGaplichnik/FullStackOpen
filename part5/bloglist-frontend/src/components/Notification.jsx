@@ -1,12 +1,18 @@
 import '../index.css'
-const Notification = ({ message, status }) => {
-  if (!message)
+import PropTypes from 'prop-types'
+
+const Notification = ({ notificationText, status }) => {
+  if (!notificationText)
     return null
   return (
     <div className={status}>
-      <p>{message}</p>
+      <p>{notificationText}</p>
     </div>
   )
+}
+
+Notification.propTypes = {
+  status: PropTypes.string.isRequired
 }
 
 export default Notification

@@ -7,16 +7,16 @@ import Togglable from './components/Togglable'
 import BlogForm from './components/BlogForm'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-  const [errorMessage, setErrorMessage] = useState(null)
-
-  const [user, setUser] = useState(null)
-
+  const [notificationText, setNotificationText] = useState(null)
   const [status, setStatus] = useState('')
   const failureStatus = 'failure'
   const successStatus = 'success'
 
-  const blogFormRef = useRef()
+  const [blogs, setBlogs] = useState([])
+
+  const [user, setUser] = useState(null)
+
+  const togglableRef = useRef()
 
   useEffect(() => {
     // console.log(user)
@@ -34,12 +34,19 @@ const App = () => {
     }
   }, [])
 
+  const setFailStatus = () => {
+    setStatus(failureStatus)
+  }
+
+  const setSuccessStatus = () => {
+    setStatus(successStatus)
+  }
+
   const logout = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
     blogService.setToken(null)
   }
-
 
   const sortedBlogList = () => (
     blogs
@@ -47,36 +54,43 @@ const App = () => {
       .map(blog =>
         <Blog
           key={blog.id}
-          user={user}
           blog={blog}
           blogs={blogs}
           setBlogs={setBlogs}
-          setErrorMessage={setErrorMessage}
-          setStatus={setStatus}
-          failureStatus={failureStatus} />
+          likeClickHandler={() => likeBlog(blog)}
+        />
       )
   )
+
+  const likeBlog = async (blog) => {
+    const { id, ...blogWithLike } = blog
+    blogWithLike.likes += 1
+    blogWithLike.user = blog.user.id
+
+    try {
+      const updatedBlog = await (await blogService.update(blogWithLike, blog.id)).data
+      const blogsWithUpdatedBlog = blogs.map((blogIn) => blogIn.id === updatedBlog.id ? updatedBlog : blogIn)
+      setBlogs(blogsWithUpdatedBlog)
+    } catch (error) {
+      console.log(error.response.data.error)
+    }
+  }
 
   const blogBlock = () => {
     return (
       <div>
-        <h2>blogs</h2>
-        <Notification message={errorMessage} status={status} />
         <p>{user.username} is logged in <button onClick={logout}>logout</button>
         </p>
-        <Togglable buttonLabel="new note" ref={blogFormRef}>
+        <Togglable buttonLabel="new note" ref={togglableRef}>
           <BlogForm
             blogs={blogs}
             setBlogs={setBlogs}
-            setErrorMessage={setErrorMessage}
-            setStatus={setStatus}
-            successStatus={successStatus}
-            failureStatus={failureStatus}
-            blogFormRef={blogFormRef} />
+            setNotificationText={setNotificationText}
+            togglableRef={togglableRef}
+            setSuccessStatus={setSuccessStatus}
+          />
         </Togglable>
-        {
-          sortedBlogList()
-        }
+        {sortedBlogList()}
       </div>
     )
   }
@@ -84,16 +98,21 @@ const App = () => {
   return (
     <div>
       {!user &&
-        <LoginForm
-          errorMessage={errorMessage}
-          status={status}
-          setStatus={setStatus}
-          setUser={setUser}
-          setErrorMessage={setErrorMessage}
-          failureStatus={failureStatus}
-          successStatus={successStatus} />
+        <>
+          <h2>Log in to application</h2>
+          <Notification notificationText={notificationText} status={status} />
+          <LoginForm setUser={setUser}
+            setFailStatus={setFailStatus}
+            setSuccessStatus={setSuccessStatus}
+            setNotificationText={setNotificationText} />
+        </>}
+      {user &&
+        <>
+          <h2>blogs</h2>
+          <Notification notificationText={notificationText} status={status} />
+          {blogBlock()}
+        </>
       }
-      {user && blogBlock()}
     </div>
   )
 }

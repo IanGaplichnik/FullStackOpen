@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import PropTypes from 'prop-types'
 import Notification from './Notification'
 import loginService from '../services/login'
 import blogService from '../services/blogs'
 
-const LoginForm = ({ errorMessage, status, setStatus, setUser, setErrorMessage, failureStatus, successStatus }) => {
+const LoginForm = ({ setUser, setSuccessStatus, setNotificationText, setFailStatus }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
@@ -19,23 +20,21 @@ const LoginForm = ({ errorMessage, status, setStatus, setUser, setErrorMessage, 
         'loggedBlogappUser', JSON.stringify(user)
       )
       blogService.setToken(user.token)
-      setStatus(successStatus)
-      setErrorMessage(`User ${user.username} logged in`)
-      setTimeout(() => setErrorMessage(null), 5000)
+      setSuccessStatus()
+      setNotificationText(`User ${user.username} logged in`)
+      setTimeout(() => setNotificationText(null), 5000)
       setUser(user)
       setUsername('')
       setPassword('')
     } catch (exception) {
-      setStatus(failureStatus)
-      setErrorMessage('Wrong credentials')
-      setTimeout(() => setErrorMessage(null), 5000)
+      setNotificationText('Wrong credentials')
+      setFailStatus()
+      setTimeout(() => setNotificationText(null), 5000)
     }
   }
 
   return (
     <form onSubmit={handleLogin}>
-      <h2>Log in to application</h2>
-      <Notification message={errorMessage} status={status} />
       <div>
         username <input
           type="text"
@@ -53,6 +52,13 @@ const LoginForm = ({ errorMessage, status, setStatus, setUser, setErrorMessage, 
       <button type="submit">login</button>
     </form>
   )
+}
+
+LoginForm.propTypes = {
+  setUser: PropTypes.func.isRequired,
+  setSuccessStatus: PropTypes.func.isRequired,
+  setNotificationText: PropTypes.func.isRequired,
+  setFailStatus: PropTypes.func.isRequired,
 }
 
 export default LoginForm
