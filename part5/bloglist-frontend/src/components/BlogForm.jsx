@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 import blogService from '../services/blogs'
 
-const BlogForm = ({ blogs, setBlogs, togglableRef, setNotificationText, setSuccessStatus }) => {
+const BlogForm = ({ blogs, setBlogs, togglableRef, setNotificationText, setSuccessStatus, createBlog }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
@@ -14,37 +14,26 @@ const BlogForm = ({ blogs, setBlogs, togglableRef, setNotificationText, setSucce
     setUrl('')
   }
 
-  const setNotificationBlogCreated = (savedBlog) => {
-    setNotificationText(`Blog ${savedBlog.title} by ${savedBlog.author} has been saved!`)
-    setSuccessStatus()
-    setTimeout(() => setNotificationText(null), 10000)
-  }
-
-  const createBlog = async event => {
+  const handleSubmit = (event) => {
     event.preventDefault()
-    const newBlog = {
-      title, author, url
-    }
-
     try {
-      const savedBlog = await blogService.create(newBlog)
-      const allBlogs = blogs.concat(savedBlog)
-      setBlogs(allBlogs)
+      createBlog(title, author, url)
       resetFormHooks()
-      setNotificationBlogCreated(savedBlog)
       togglableRef.current.toggleVisibility()
     } catch (error) {
-      console.log(error.response.data.error)
+      console.log(error)
     }
   }
 
   return (
-    <form onSubmit={createBlog}>
+    <form onSubmit={handleSubmit}>
       <div>
         title: <input
           type="text"
           value={title}
           name="Title"
+          placeholder='Enter title'
+          id='title'
           onChange={({ target }) => setTitle(target.value)} />
       </div>
       <div>
@@ -52,16 +41,20 @@ const BlogForm = ({ blogs, setBlogs, togglableRef, setNotificationText, setSucce
           type="text"
           value={author}
           name="Author"
+          placeholder='Enter author'
+          id='author'
           onChange={({ target }) => setAuthor(target.value)} />
       </div>
       <div>
         url: <input
-          type="text"
+          type='text'
           value={url}
-          name="URL"
+          name='URL'
+          placeholder='Enter URL'
+          id='url'
           onChange={({ target }) => setUrl(target.value)} />
       </div>
-      <button type="submit">create</button>
+      <button type='submit' id='create-button'>create</button>
     </form>
   )
 }
@@ -70,7 +63,8 @@ BlogForm.propTypes = {
   blogs: PropTypes.array.isRequired,
   setBlogs: PropTypes.func.isRequired,
   setNotificationText: PropTypes.func.isRequired,
-  setSuccessStatus: PropTypes.func.isRequired
+  setSuccessStatus: PropTypes.func.isRequired,
+  createBlog: PropTypes.func.isRequired
 }
 
 export default BlogForm

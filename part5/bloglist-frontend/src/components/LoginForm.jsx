@@ -21,7 +21,7 @@ const LoginForm = ({ setUser, setSuccessStatus, setNotificationText, setFailStat
       )
       blogService.setToken(user.token)
       setSuccessStatus()
-      setNotificationText(`User ${user.username} logged in`)
+      setNotificationText(`User ${user.name} logged in`)
       setTimeout(() => setNotificationText(null), 5000)
       setUser(user)
       setUsername('')
@@ -40,6 +40,7 @@ const LoginForm = ({ setUser, setSuccessStatus, setNotificationText, setFailStat
           type="text"
           value={username}
           name="Username"
+          id="username"
           onChange={({ target }) => setUsername(target.value)} />
       </div>
       <div>
@@ -47,9 +48,10 @@ const LoginForm = ({ setUser, setSuccessStatus, setNotificationText, setFailStat
           type="text"
           value={password}
           name="Password"
+          id="password"
           onChange={({ target }) => setPassword(target.value)} />
       </div>
-      <button type="submit">login</button>
+      <button type="submit" id="login-button">login</button>
     </form>
   )
 }

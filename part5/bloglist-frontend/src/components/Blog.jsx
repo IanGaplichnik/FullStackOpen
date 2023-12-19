@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { useState } from 'react'
 import blogService from '../services/blogs'
 
-const Blog = ({ blog, blogs, setBlogs, likeClickHandler }) => {
+const Blog = ({ blog, blogs, setBlogs, likeClickHandler, username }) => {
   const [infoVisible, setInfoVisible] = useState(false)
 
   const blogStyle = {
@@ -36,14 +36,14 @@ const Blog = ({ blog, blogs, setBlogs, likeClickHandler }) => {
   const showWhenVisible = { display: infoVisible ? '' : 'none' }
 
   return (
-    <div style={blogStyle} className='Blog'>
+    <div style={blogStyle} className='Blog' id='blog'>
       <p>{blog.title} {blog.author}</p>
-      <button onClick={switchVisible}>{infoVisible ? 'hide' : 'show'}</button>
+      <button onClick={switchVisible} id='toggleVisibility'>{infoVisible ? 'hide' : 'show'}</button>
       <div style={showWhenVisible}>
         <p>{blog.url}</p>
-        <p>likes {blog.likes} <button onClick={likeClickHandler}>like</button></p>
+        <p>likes {blog.likes} <button onClick={likeClickHandler} id='like'>like</button></p>
         <p>{blog.user.username}</p>
-        <button onClick={handleDelete}>delete</button>
+        {blog.user.username === username && <button onClick={handleDelete} id='delete'>delete</button>}
       </div>
     </div>
   )

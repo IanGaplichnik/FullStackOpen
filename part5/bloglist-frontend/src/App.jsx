@@ -58,6 +58,7 @@ const App = () => {
           blogs={blogs}
           setBlogs={setBlogs}
           likeClickHandler={() => likeBlog(blog)}
+          username={user.username}
         />
       )
   )
@@ -76,18 +77,37 @@ const App = () => {
     }
   }
 
+
+  const setNotificationBlogCreated = (savedBlog) => {
+    setNotificationText(`Blog ${savedBlog.title} by ${savedBlog.author} has been saved!`)
+    setSuccessStatus()
+    setTimeout(() => setNotificationText(null), 10000)
+  }
+
+  const createBlog = async (title, author, url) => {
+    const newBlog = {
+      title, author, url
+    }
+
+    const savedBlog = await blogService.create(newBlog)
+    const allBlogs = blogs.concat(savedBlog)
+    setBlogs(allBlogs)
+    setNotificationBlogCreated(savedBlog)
+  }
+
   const blogBlock = () => {
     return (
       <div>
         <p>{user.username} is logged in <button onClick={logout}>logout</button>
         </p>
-        <Togglable buttonLabel="new note" ref={togglableRef}>
+        <Togglable buttonLabel="new blog" ref={togglableRef}>
           <BlogForm
             blogs={blogs}
             setBlogs={setBlogs}
             setNotificationText={setNotificationText}
             togglableRef={togglableRef}
             setSuccessStatus={setSuccessStatus}
+            createBlog={createBlog}
           />
         </Togglable>
         {sortedBlogList()}
