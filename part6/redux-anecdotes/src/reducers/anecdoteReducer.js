@@ -33,22 +33,6 @@ export const addAnecdote = (content) => {
 
 const initialState = anecdotesAtStart.map(asObject)
 
-export const setFilter = (value) => {
-  return {
-    type: 'SET_FILTER',
-    value: value,
-  }
-}
-
-const filterReducer = (state = '', action) => {
-  switch (action.type) {
-    case 'SET_FILTER':
-      return action.value
-    default:
-      return state
-  }
-}
-
 const anecdotesReducer = (state = initialState, action) => {
   console.log('state now: ', state)
   console.log('action', action)
@@ -72,4 +56,4 @@ const anecdotesReducer = (state = initialState, action) => {
   }
 }
 
-export { anecdotesReducer, filterReducer }
+export default anecdotesReducer
