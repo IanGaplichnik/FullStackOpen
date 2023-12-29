@@ -1,0 +1,50 @@
+{
+  "notes": [
+    {
+      "id": 1,
+      "content": "custom-hooks are awesome!"
+    },
+    {
+      "id": 2,
+      "content": "best feature ever <3"
+    },
+    {
+      "content": "asd",
+      "id": 3
+    },
+    {
+      "content": "as",
+      "id": 4
+    },
+    {
+      "content": "asadfs",
+      "id": 5
+    },
+    {
+      "content": "new note, wow",
+      "id": 6
+    }
+  ],
+  "persons": [
+    {
+      "id": 1,
+      "name": "mluukkai",
+      "number": "040-5483923"
+    },
+    {
+      "id": 2,
+      "name": "hellas",
+      "number": "012-123123"
+    },
+    {
+      "name": "kjl",
+      "number": "lkjlk",
+      "id": 3
+    },
+    {
+      "name": "new name and",
+      "number": "new number hehe",
+      "id": 4
+    }
+  ]
+}
