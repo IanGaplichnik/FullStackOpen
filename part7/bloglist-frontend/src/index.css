@@ -1,0 +1,19 @@
+.success {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #b0dc81;
+  border-style: solid;
+  border-color: #2e5c0e;
+  color: rgb(46, 92, 14);
+  padding: 10px;
+  border-radius: 20px;
+}
+
+.failure {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #fbbeb8;
+  border-style: solid;
+  border-color: rgb(161, 22, 10);
+  color: rgb(161, 22, 10);
+  padding: 10px;
+  border-radius: 20px;
+}
