@@ -1,24 +1,13 @@
-import { useState, useEffect, useRef, useContext } from 'react'
-import Blog from './components/Blog'
+import { useState, useEffect, useRef } from 'react'
 import blogService from './services/blogs'
 import Notification from './components/Notification'
 import LoginForm from './components/LoginForm'
-import Togglable from './components/Togglable'
-import BlogForm from './components/BlogForm'
-import { NotificationContext } from './components/NotificationContext'
+import BlogBlock from './components/BlogBlock'
+import { useQuery } from '@tanstack/react-query'
+import { getBlogs } from './services/blogs'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
-
   const [user, setUser] = useState(null)
-
-  const togglableRef = useRef()
-
-  useEffect(() => {
-    // console.log(user)
-    blogService.getAll().then((blogs) => setBlogs(blogs))
-  }, [])
-
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem('loggedBlogappUser')
     if (loggedUserJSON) {
@@ -28,60 +17,25 @@ const App = () => {
     }
   }, [])
 
+  const result = useQuery({
+    queryKey: ['blogs'],
+    queryFn: getBlogs,
+    retry: 1,
+  })
+
+  if (result.isLoading) return <div>Loading</div>
+  if (result.isError) return <div>Server problem</div>
+  const blogs = result.data
+
+  // useEffect(() => {
+  //   // console.log(user)
+  //   blogService.getAll().then((blogs) => setBlogs(blogs))
+  // }, [])
+
   const logout = () => {
     window.localStorage.removeItem('loggedBlogappUser')
     setUser(null)
     blogService.setToken(null)
-  }
-
-  const sortedBlogList = () =>
-    blogs
-      .sort((a, b) => b.likes - a.likes)
-      .map((blog) => (
-        <Blog
-          key={blog.id}
-          blog={blog}
-          blogs={blogs}
-          setBlogs={setBlogs}
-          likeClickHandler={() => likeBlog(blog)}
-          username={user.username}
-        />
-      ))
-
-  const likeBlog = async (blog) => {
-    const { id, ...blogWithLike } = blog
-    blogWithLike.likes += 1
-    blogWithLike.user = blog.user.id
-
-    try {
-      const updatedBlog = await (
-        await blogService.update(blogWithLike, blog.id)
-      ).data
-      const blogsWithUpdatedBlog = blogs.map((blogIn) =>
-        blogIn.id === updatedBlog.id ? updatedBlog : blogIn
-      )
-      setBlogs(blogsWithUpdatedBlog)
-    } catch (error) {
-      console.log(error.response.data.error)
-    }
-  }
-
-  const blogBlock = () => {
-    return (
-      <div>
-        <p>
-          {user.username} is logged in <button onClick={logout}>logout</button>
-        </p>
-        <Togglable buttonLabel='new blog' ref={togglableRef}>
-          <BlogForm
-            blogs={blogs}
-            setBlogs={setBlogs}
-            togglableRef={togglableRef}
-          />
-        </Togglable>
-        {sortedBlogList()}
-      </div>
-    )
   }
 
   return (
@@ -97,7 +51,12 @@ const App = () => {
         <>
           <h2>blogs</h2>
           <Notification />
-          {blogBlock()}
+          <p>
+            {user.username} is logged in{' '}
+            <button onClick={logout}>logout</button>
+          </p>
+          <BlogBlock blogs={blogs} user={user} />
+          {/* <BlogBlock blogs={blogs} setBlogs={setBlogs} user={user} /> */}
         </>
       )}
     </div>

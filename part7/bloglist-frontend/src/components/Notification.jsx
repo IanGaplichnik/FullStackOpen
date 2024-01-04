@@ -4,7 +4,7 @@ import { NotificationContext } from './NotificationContext'
 import { useContext } from 'react'
 
 const Notification = () => {
-  const [notification, dispatch] = useContext(NotificationContext)
+  const { notification } = useContext(NotificationContext)
   console.log(notification)
 
   if (!notification.msg) return null

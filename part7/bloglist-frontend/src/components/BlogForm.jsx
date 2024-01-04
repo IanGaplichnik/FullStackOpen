@@ -8,7 +8,7 @@ const BlogForm = ({ blogs, setBlogs, togglableRef }) => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
-  const [notification, dispatchNotification] = useContext(NotificationContext)
+  const { dispatchNotification } = useContext(NotificationContext)
 
   const resetFormHooks = () => {
     setAuthor('')
@@ -88,7 +88,6 @@ const BlogForm = ({ blogs, setBlogs, togglableRef }) => {
 
 BlogForm.propTypes = {
   blogs: PropTypes.array.isRequired,
-  setBlogs: PropTypes.func.isRequired,
 }
 
 export default BlogForm

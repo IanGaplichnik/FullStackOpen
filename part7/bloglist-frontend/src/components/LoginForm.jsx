@@ -8,7 +8,7 @@ import { NotificationContext } from './NotificationContext'
 const LoginForm = ({ setUser }) => {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [notification, dispatchNotification] = useContext(NotificationContext)
+  const { dispatchNotification } = useContext(NotificationContext)
 
   const handleLogin = async (event) => {
     event.preventDefault()
